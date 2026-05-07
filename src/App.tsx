@@ -1,61 +1,44 @@
-import { useEffect, useState } from 'react'
-import { fetchBlueprintGraph } from './api/client'
-import type { ActionBlueprintGraphResponse } from './api/schemas'
+import { useState } from 'react'
+import { useBlueprintGraph } from '@/hooks/useBlueprintGraph'
+import { FormList } from '@/components/FormList'
+import { usePrefillMappings } from './hooks/usePrefillMappings'
+import { PrefillPanel } from './components/PrefillPanel'
+import { mockGlobals } from './prefill/globals'
 
 function App() {
-  const [data, setData] = useState<ActionBlueprintGraphResponse | null>(null)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+  const state = useBlueprintGraph()
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
+  const mappingsApi = usePrefillMappings()
 
-  useEffect(() => {
-    const controller = new AbortController()
+  if (state.status === 'loading') {
+    return <div className="p-8">Loading...</div>
+  }
 
-    async function run() {
-      setLoading(true)
-      setError(null)
+  if (state.status === 'error') {
+    return (
+      <div className="p-8 text-red-500">Error: {state.error.message}</div>
+    )
+  }
 
-      try {
-        // TODO: Replace these with real IDs (or wire up inputs/router params)
-        const res = await fetchBlueprintGraph({
-          tenantId: 't_67890',
-          actionBlueprintId: 'bp_12345',
-          signal: controller.signal,
-        })
-        setData(res)
-        setError(null)
-      } catch (e) {
-        // In React dev (Strict Mode), effects may run twice and the first run gets aborted.
-        // Treat AbortError as a non-error so it doesn't flash on screen.
-        if (e instanceof DOMException && e.name === 'AbortError') {
-          return
-        }
-
-        setError(e instanceof Error ? e.message : String(e))
-        setData(null)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    void run()
-    return () => controller.abort()
-  }, [])
+  const nodes = state.graph.getAllNodes()
+  const selectedNode = selectedNodeId
+    ? state.graph.getNode(selectedNodeId) ?? null
+    : null
 
   return (
-    <>
-      <h1>Forms</h1>
-
-      {loading ? <p>Loading…</p> : null}
-      {error ? <p>{error}</p> : null}
-
-      <ul>
-        {(data?.forms ?? []).map((f) => (
-          <li key={f.id}>
-            {f.name ?? f.id} ({f.id})
-          </li>
-        ))}
-      </ul>
-    </>
+    <div className="flex gap-4 p-8">
+      <FormList
+        nodes={nodes}
+        selectedNodeId={selectedNodeId}
+        onSelect={setSelectedNodeId}
+      />
+      <PrefillPanel
+        node={selectedNode}
+        graph={state.graph}
+        globals={mockGlobals}
+        mappingsApi={mappingsApi}
+      />
+    </div>
   )
 }
 
