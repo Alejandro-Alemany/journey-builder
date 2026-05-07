@@ -382,3 +382,7 @@ export type ActionBlueprintGraphResponse = z.infer<
   typeof ActionBlueprintGraphResponseSchema
 >
 
+// Alias used by the graph builder layer. The backend route returns an “action blueprint graph”;
+// the UI treats it as the canonical blueprint graph payload.
+export type BlueprintGraph = ActionBlueprintGraphResponse
+
