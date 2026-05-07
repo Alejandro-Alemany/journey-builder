@@ -29,6 +29,7 @@ function App() {
     <div className="flex gap-4 p-8">
       <FormList
         nodes={nodes}
+        graph={state.graph}
         selectedNodeId={selectedNodeId}
         onSelect={setSelectedNodeId}
       />

@@ -25,7 +25,7 @@ export function PrefillFieldRow({
       tabIndex={isMapped ? -1 : 0}
       className={cn(
         "flex items-center justify-between rounded-lg border px-3 py-2",
-        isMapped ? "bg-muted/40" : "hover:bg-muted/30 cursor-pointer",
+        isMapped ? "bg-blue-300/40" : "hover:bg-muted/30 cursor-pointer",
       )}
       onClick={() => {
         if (!isMapped) onClickUnmapped();
@@ -53,7 +53,7 @@ export function PrefillFieldRow({
         <Button
           type="button"
           variant="ghost"
-          size="icon"
+          size="icon-xs"
           className="shrink-0"
           onClick={(e) => {
             e.stopPropagation();

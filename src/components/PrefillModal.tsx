@@ -159,8 +159,8 @@ export function PrefillModal({
                                   key={`${opt.sourceId}:${opt.groupId}:${opt.fieldId}`}
                                   type="button"
                                   className={cn(
-                                    "rounded-md px-2 py-1 text-left text-sm hover:bg-muted/50",
-                                    selected ? "bg-accent" : undefined,
+                                    "rounded-md px-2 py-1 text-left text-sm hover:bg-blue-300/40",
+                                    selected ? "bg-blue-300/40" : undefined,
                                   )}
                                   onClick={() => setSelectedOption(opt)}
                                 >
