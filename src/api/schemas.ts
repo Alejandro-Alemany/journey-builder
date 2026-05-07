@@ -352,7 +352,7 @@ export const ActionBlueprintGraphResponseSchema = z
 
     tenant_id: z.string(),
 
-    blueprint_id: z.string(),
+    id: z.string(),
     blueprint_name: z.string().optional(),
 
     version_id: z.string().optional(),
@@ -377,6 +377,10 @@ export const ActionBlueprintGraphResponseSchema = z
     state_model_schema: StateModelSchemaSchema.optional(),
   })
   .loose()
+
+// The graph builder layer treats the action blueprint graph payload as the canonical “blueprint graph”.
+// Expose a stable schema export for tests and builders without duplicating the Zod definition.
+export const BlueprintGraphSchema = ActionBlueprintGraphResponseSchema
 
 export type ActionBlueprintGraphResponse = z.infer<
   typeof ActionBlueprintGraphResponseSchema
