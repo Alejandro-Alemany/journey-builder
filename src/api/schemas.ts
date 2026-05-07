@@ -76,6 +76,13 @@ const DynamicFieldConfigPayloadFieldSchema = z
   })
   .loose()
 
+/**
+ * Exported “Field” type for consumers: this corresponds to entries inside
+ * `forms[].dynamic_field_config.*.payload_fields.*`.
+ */
+export const FieldSchema = DynamicFieldConfigPayloadFieldSchema
+export type Field = z.infer<typeof FieldSchema>
+
 const DynamicFieldConfigEntrySchema = z
   .object({
     endpoint_id: z.string().optional(),
@@ -132,6 +139,9 @@ const FormSchema = z
     dynamic_field_config: z.record(z.string(), DynamicFieldConfigEntrySchema).optional(),
   })
   .loose()
+
+export { FormSchema }
+export type Form = z.infer<typeof FormSchema>
 
 // --- Triggers ---
 
@@ -327,6 +337,13 @@ const NodeSchema = z
   })
   .loose()
 
+/**
+ * Exported DAG node type. “FormNode” name matches the common usage in the UI,
+ * even though `type` can represent other component kinds.
+ */
+export const FormNodeSchema = NodeSchema
+export type FormNode = z.infer<typeof FormNodeSchema>
+
 // --- Top-level response ---
 
 export const ActionBlueprintGraphResponseSchema = z
@@ -338,7 +355,7 @@ export const ActionBlueprintGraphResponseSchema = z
     blueprint_id: z.string(),
     blueprint_name: z.string().optional(),
 
-    version_id: z.string(),
+    version_id: z.string().optional(),
     version_number: z.string().optional(),
     version_notes: z.string().nullable().optional(),
 

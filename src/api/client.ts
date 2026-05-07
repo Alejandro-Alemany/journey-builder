@@ -79,16 +79,39 @@ export async function fetchBlueprintGraph(
 
   const json: unknown = await res.json()
 
-  // The local backend stub may omit some top-level identifiers.
-  // Fill them from request params so the rest of the response can still be validated.
+  // Backends differ slightly in top-level identifiers:
+  // - canonical: { tenant_id, blueprint_id, blueprint_name, version_id, ... }
+  // - some servers: { tenant_id, id, name, description, category, ... } (no version_id)
+  //
+  // Normalize to the canonical shape before Zod parsing.
   const normalized: unknown =
     json && typeof json === 'object'
-      ? {
-          tenant_id: params.tenantId,
-          blueprint_id: params.actionBlueprintId,
-          version_id: params.blueprintVersionId ?? 'stub',
-          ...(json as Record<string, unknown>),
-        }
+      ? (() => {
+          const obj = json as Record<string, unknown>
+
+          const tenant_id =
+            (typeof obj.tenant_id === 'string' ? obj.tenant_id : undefined) ??
+            params.tenantId
+
+          const blueprint_id =
+            (typeof obj.blueprint_id === 'string'
+              ? obj.blueprint_id
+              : undefined) ??
+            (typeof obj.id === 'string' ? obj.id : undefined) ??
+            params.actionBlueprintId
+
+          const blueprint_name =
+            (typeof obj.blueprint_name === 'string'
+              ? obj.blueprint_name
+              : undefined) ?? (typeof obj.name === 'string' ? obj.name : undefined)
+
+          return {
+            tenant_id,
+            blueprint_id,
+            ...(blueprint_name ? { blueprint_name } : {}),
+            ...obj,
+          }
+        })()
       : json
 
   return ActionBlueprintGraphResponseSchema.parse(normalized)
